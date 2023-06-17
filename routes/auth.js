@@ -4,8 +4,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT } = require("../config/keys");
 const requireLogin = require("../middleware/requireLogin");
+const nodemailer = require("nodemailer");
 
 const router = express.Router();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "nassimslim321@gmail.com", //sender email
+    pass: "password", // password of the sender email
+  },
+});
 
 router.get("/protected", requireLogin, (req, res) => {
   res.json({ message: "Protected route has been unlocked" });
@@ -32,6 +41,29 @@ router.post("/signup", (req, res) => {
           name,
         })
           .then((user) => {
+            // transporter.sendMail({
+            //   from: '"Fred Foo 👻" <nassimslim321@gmail.com>', // sender address
+            //   to: user.email, // list of receivers
+            //   subject: "Hello ✔", // Subject line
+            //   text: "Hello world?", // plain text body
+            //   html: "<b>Hello world?</b>", // html body
+            // });
+            const mailOptions = {
+              from: "nassimslim321@gmail.com",
+              to: user.email,
+              subject: "Test Email",
+              text: "This is a test email sent using Nodemailer.",
+            };
+
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.log(error);
+                console.log("test");
+              } else {
+                console.log("done");
+                console.log("Email sent: " + info.response);
+              }
+            });
             // res.json(user);
             res.json({ message: "Saved successfully" });
           })
